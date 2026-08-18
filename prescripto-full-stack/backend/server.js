@@ -18,9 +18,14 @@ connectCloudinary();
 // Middlewares
 app.use(express.json());
 
+const allowedOrigins = [
+  "https://prescripto-2-oaxz.onrender.com",
+  "https://prescripto-admin-f1rr.onrender.com",
+];
+
 app.use(
   cors({
-    origin: "https://prescripto-2-oaxz.onrender.com",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
