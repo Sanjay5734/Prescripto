@@ -58,34 +58,134 @@ const appointmentCancel = async (req, res) => {
 }
 
 // API for adding Doctor
+// const addDoctor = async (req, res) => {
+
+//     try {
+
+//         const { name, email, password, speciality, degree, experience, about, fees, address } = req.body
+//         const imageFile = req.file
+
+//         // checking for all data to add doctor
+//         if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
+//             return res.json({ success: false, message: "Missing Details" })
+//         }
+
+//         // validating email format
+//         if (!validator.isEmail(email)) {
+//             return res.json({ success: false, message: "Please enter a valid email" })
+//         }
+
+//         // validating strong password
+//         if (password.length < 8) {
+//             return res.json({ success: false, message: "Please enter a strong password" })
+//         }
+
+//         // hashing user password
+//         const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
+//         const hashedPassword = await bcrypt.hash(password, salt)
+
+//         // upload image to cloudinary
+//         const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
+//         const imageUrl = imageUpload.secure_url
+
+//         const doctorData = {
+//             name,
+//             email,
+//             image: imageUrl,
+//             password: hashedPassword,
+//             speciality,
+//             degree,
+//             experience,
+//             about,
+//             fees,
+//             address: JSON.parse(address),
+//             date: Date.now()
+//         }
+
+//         const newDoctor = new doctorModel(doctorData)
+//         await newDoctor.save()
+//         res.json({ success: true, message: 'Doctor Added' })
+
+//     } catch (error) {
+//         console.log(error)
+//         res.json({ success: false, message: error.message })
+//     }
+// }
 const addDoctor = async (req, res) => {
-
     try {
+        const {
+            name,
+            email,
+            password,
+            speciality,
+            degree,
+            experience,
+            about,
+            fees,
+            address
+        } = req.body
 
-        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body
         const imageFile = req.file
 
-        // checking for all data to add doctor
-        if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
-            return res.json({ success: false, message: "Missing Details" })
+        console.log("1. Request received")
+        console.log("2. Image:", imageFile)
+        console.log("3. Name:", name)
+        console.log("4. Email:", email)
+
+        if (
+            !name ||
+            !email ||
+            !password ||
+            !speciality ||
+            !degree ||
+            !experience ||
+            !about ||
+            !fees ||
+            !address
+        ) {
+            return res.json({
+                success: false,
+                message: "Missing Details"
+            })
         }
 
-        // validating email format
+        if (!imageFile) {
+            return res.json({
+                success: false,
+                message: "Image is required"
+            })
+        }
+
         if (!validator.isEmail(email)) {
-            return res.json({ success: false, message: "Please enter a valid email" })
+            return res.json({
+                success: false,
+                message: "Please enter a valid email"
+            })
         }
 
-        // validating strong password
         if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
+            return res.json({
+                success: false,
+                message: "Please enter a strong password"
+            })
         }
 
-        // hashing user password
-        const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
+        console.log("5. Validation passed")
+
+        const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
 
-        // upload image to cloudinary
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
+        console.log("6. Password hashed")
+
+        const imageUpload = await cloudinary.uploader.upload(
+            imageFile.path,
+            {
+                resource_type: "image"
+            }
+        )
+
+        console.log("7. Cloudinary upload successful")
+
         const imageUrl = imageUpload.secure_url
 
         const doctorData = {
@@ -102,16 +202,28 @@ const addDoctor = async (req, res) => {
             date: Date.now()
         }
 
+        console.log("8. Doctor data:", doctorData)
+
         const newDoctor = new doctorModel(doctorData)
+
         await newDoctor.save()
-        res.json({ success: true, message: 'Doctor Added' })
+
+        console.log("9. Doctor saved to MongoDB")
+
+        res.json({
+            success: true,
+            message: "Doctor Added"
+        })
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log("ADD DOCTOR ERROR:", error)
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 }
-
 // API to get all doctors list for admin panel
 const allDoctors = async (req, res) => {
     try {
